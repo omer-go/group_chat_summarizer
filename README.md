@@ -1,4 +1,4 @@
-# OpenAI Chat Summarizer
+# Group Chat Summarizer
 
 This is a Python-based script that takes in the exports of your chat from either WhatsApp or Signal and provides a summarization of the conversations that occurred during a specified time period. The script uses OpenAI's GPT-4 to generate a summarized text, making it a handy tool for understanding the main points of long conversations.
 
