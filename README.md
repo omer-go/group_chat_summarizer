@@ -11,6 +11,7 @@ This project can be used to generate summaries of your conversations or to creat
 - `regex` Python package
 - `dateutil` Python package
 - `argparse` Python package
+- An exported group chat from either WhatsApp or Signal
 
 ## Installation
 
@@ -19,6 +20,32 @@ To install the requirements, run the following command in your terminal:
 ```bash
 pip install -r requirements.txt
 ```
+
+## Exporting Chat History
+
+To use this script, you need to have an exported group chat from either WhatsApp or Signal as a text file. Here are the instructions on how to export your chat history from each app:
+
+### WhatsApp
+
+To export your group chat from WhatsApp, follow these steps:
+
+1. Open WhatsApp and go to the group chat you want to export.
+2. Tap on the group name at the top of the screen to open the group info.
+3. Scroll down and tap on "Export chat".
+4. Choose whether to include media files or not.
+5. Select how you want to share the chat export file. You can send it to yourself via email, save it to your device, or use any other method.
+6. Save the chat export file as a text file with a .txt extension.
+
+### Signal
+
+To export your group chat from Signal, you need to use the [signal-export](https://github.com/carderne/signal-export) command-line tool. Follow these steps:
+
+1. Install signal-export by running `pip install signal-export`.
+2. Connect your Android device to your computer via USB and enable USB debugging mode.
+3. Run `signal-export --output <output_directory>` in your terminal, where `<output_directory>` is the path to the folder where you want to save the chat export files.
+4. Follow the instructions on your device and computer screen to grant permissions and backup your Signal data.
+5. Wait for the process to finish. You should see a message saying "Done!" when it's complete.
+6. Find the chat export file for the group chat you want to summarize in the output directory. It should be a text file with a .txt extension and a name that matches the group name.
 
 ## Usage
 
@@ -42,6 +69,8 @@ For example:
 ```bash
 python main.py chat_export.txt summary.txt 01/01/2023 01/31/2023 --chat_type=WhatsApp --newsletter=True
 ```
+
+The script will print the summary to the console and write it to the output file.
 
 ## Contribution
 
