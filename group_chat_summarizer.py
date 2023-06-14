@@ -202,8 +202,7 @@ def whatsapp_chunk_text(messages):
     return chunks
 
 
-def call_gpt(prompt):
-    model = "gpt-3.5-turbo"
+def call_gpt(prompt, model):
     messages = [{"role": "user", "content": prompt}]
     completion = openai.ChatCompletion.create(model=model, messages=messages)
     response = completion.choices[0].message.content
@@ -212,29 +211,29 @@ def call_gpt(prompt):
     return response
 
 
-def summarize_text(text):
+def summarize_text(text, model):
     prompt = f""""{SUMMARY_PROMPT}\n\n {text}"""
-    return call_gpt(prompt)
+    return call_gpt(prompt, model)
 
 
-def generate_newsletter_intro(text):
+def generate_newsletter_intro(text, model):
     prompt = f""""{NEWSLETTER_PROMPT}\n\n {text}"""
-    return call_gpt(prompt)
+    return call_gpt(prompt, model)
 
 
-def summarize_messages(chunks):
+def summarize_messages(chunks, model):
     summary = ''
     calls_counter = 0
     for chunk in chunks:
         calls_counter += 1
         print(f"Sending prompt {calls_counter} out of {len(chunks)} to GPT! Chunk size: {len(chunk)}")
-        chunk_summary = summarize_text(chunk)
+        chunk_summary = summarize_text(chunk, model)
         summary += chunk_summary + '\n\n'
 
     return summary
 
 
-def main(chat_type, chat_export_file, summary_file, start_day_s, end_day_s, is_newsletter):
+def main(chat_type, chat_export_file, summary_file, start_day_s, end_day_s, is_newsletter, model):
     start_day = datetime.datetime.strptime(start_day_s, '%m/%d/%Y').date()
     end_day = datetime.datetime.strptime(end_day_s, '%m/%d/%Y').date()
 
@@ -259,10 +258,10 @@ def main(chat_type, chat_export_file, summary_file, start_day_s, end_day_s, is_n
         print('ERROR: Chat type must be either WhatsApp, Signal or Slack')
         exit(1)
 
-    summary = summarize_messages(chunks)
+    summary = summarize_messages(chunks, model)
 
     if is_newsletter:
-        intro = generate_newsletter_intro(summary)
+        intro = generate_newsletter_intro(summary, model)
         summary = intro + '\n\n' + summary
 
     print(('*' * 10) + '\nSummary:\n' + ('*' * 10))
@@ -282,6 +281,8 @@ if __name__ == "__main__":
     parser.add_argument("end_date", help="Until when to summarize")
     # Update to include 'Slack'
     parser.add_argument("--chat_type", help="WhatsApp, Signal or Slack")
+    parser.add_argument("--model", default="gpt-4", help="OpenAI model to use for summarization")
+
     parser.add_argument("--newsletter", action=argparse.BooleanOptionalAction,
                         help="Generate an introduction for a newsletter")
 
@@ -301,5 +302,6 @@ if __name__ == "__main__":
         args.summary_file,
         args.start_date,
         args.end_date,
-        args.newsletter
+        args.newsletter,
+        args.model
     )

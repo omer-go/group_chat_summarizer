@@ -68,7 +68,7 @@ Once your download is ready, you'll receive an email with a link to download a Z
 To use this script, navigate to the directory containing the script, and run it in the terminal. The basic usage is:
 
 ```bash
-python main.py <chat_export_file> <summary_file> <start_date> <end_date> --chat_type=<chat_type> --newsletter=<boolean>
+python group_chat_summarize.py <chat_export_file> <summary_file> <start_date> <end_date> --chat_type=<chat_type> --newsletter=<boolean>
 ```
 
 Here's a description of the command-line arguments:
