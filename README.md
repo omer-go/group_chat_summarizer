@@ -59,9 +59,10 @@ To export your group chat from Signal, you need to use the [signal-export](https
 To export your Slack workspace data, follow these steps:
 
 As an owner or admin, go to your workspace's settings by clicking on your workspace name in the top left corner, then choose "Settings & administration" -> "Workspace settings".
-On the settings page, select "Import/Export Data" in the top menu, then click on "Export" -> "Start Export".
-Select the data types you want to export. For this script, you need to export messages and files.
-Once your download is ready, you'll receive an email with a link to download a ZIP file. Unzip this file to get a series of JSON files representing your exported data.
+On the settings page, select "Import/Export Data" in the top menu, then click on "Export"
+Select Export date range and click "Start Export".
+
+Once your download is ready, you'll receive an email with a link to download a ZIP file. Unzip this file to access a series of JSON files. Each of these files represents the exported data from one channel, with the file name corresponding to the channel name.
 
 ## Usage
 
@@ -78,6 +79,7 @@ Here's a description of the command-line arguments:
 - `start_date`: This is the date from which the summary should start. The format should be "mm/dd/yyyy".
 - `end_date`: This is the date till which the summary should go. The format should be "mm/dd/yyyy".
 - `--chat_type`: This optional argument specifies the type of chat export. The valid inputs are 'WhatsApp' or 'Signal'.
+- `--model`: This optional argument specifies the OpenAI model. Default is 'gpt-4' If 'gpt-4' is not supported in your environment, you can switch to 'gpt-3.5-turbo'
 - `--newsletter`: This optional boolean argument, when set to `True`, instructs the script to generate an introduction for a newsletter.
 
 For example:
