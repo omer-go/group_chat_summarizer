@@ -15,7 +15,14 @@ This project can be used to generate summaries of your conversations or to creat
 
 ## Installation
 
-To install the requirements, run the following command in your terminal:
+Before installation, it's recommended to create a Python virtual environment to isolate the project dependencies. You can do this using the following commands:
+
+```bash
+python3 -m venv env
+source env/bin/activate
+```
+
+Then, install the necessary Python packages by running:
 
 ```bash
 pip install -r requirements.txt
@@ -46,6 +53,15 @@ To export your group chat from Signal, you need to use the [signal-export](https
 4. Follow the instructions on your device and computer screen to grant permissions and backup your Signal data.
 5. Wait for the process to finish. You should see a message saying "Done!" when it's complete.
 6. Find the chat export file for the group chat you want to summarize in the output directory. It should be a text file with a .txt extension and a name that matches the group name.
+
+
+### Slack
+To export your Slack workspace data, follow these steps:
+
+As an owner or admin, go to your workspace's settings by clicking on your workspace name in the top left corner, then choose "Settings & administration" -> "Workspace settings".
+On the settings page, select "Import/Export Data" in the top menu, then click on "Export" -> "Start Export".
+Select the data types you want to export. For this script, you need to export messages and files.
+Once your download is ready, you'll receive an email with a link to download a ZIP file. Unzip this file to get a series of JSON files representing your exported data.
 
 ## Usage
 

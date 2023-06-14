@@ -4,6 +4,7 @@ import openai
 import datetime
 from dateutil.parser import parse
 import argparse
+import json
 
 DATE_PATTERN = r'(\[\d{1,2}/\d{1,2}/\d{2,4},\s\d{1,2}:\d{2}:\d{2}\s[AP]M\])'
 SUMMARY_PROMPT = f"""Please summarize the following WhatsApp group chat based on topics that were discussed. For each topic, include its title and summary in bullet points. The bullets should include detailed information. If the topic includes recommendations about specific companies or services, please include them in the summary. Please include links that were shared."""
@@ -126,6 +127,48 @@ def signal_chunk_text(messages):
     return chunks
 
 
+def parse_slack(json_file):
+    with open(json_file, 'r') as file:
+        messages = json.load(file)
+
+    parsed_messages = []
+    for message in messages:
+        # Ignoring system messages (join, leave, etc.)
+        if 'subtype' in message:
+            continue
+
+        date = datetime.datetime.fromtimestamp(float(message['ts'])).date()
+        text = message['text']
+        parsed_messages.append((date, text))
+
+    return parsed_messages
+
+
+def slack_remove_sender(message):
+    pattern = r'<@U[^>]+>'
+    return re.sub(pattern, 'member', message)
+
+
+def slack_chunk_text(messages):
+    current_word_count = 0
+    current_chunk = ''
+    chunks = []
+    for _, message in messages:
+        message = slack_remove_sender(message)
+        message_word_count = len(message.split())
+        if current_word_count + message_word_count > MAX_WORD_COUNT:
+            chunks.append(current_chunk.strip())
+            current_chunk = ''
+            current_word_count = 0
+
+        current_chunk += message
+        current_word_count += message_word_count
+
+    if current_chunk:
+        chunks.append(current_chunk.strip())
+
+    return chunks
+
 def filter_messages_by_dates(messages, start_day, end_day):
     filtered = []
     for message in messages:
@@ -160,7 +203,7 @@ def whatsapp_chunk_text(messages):
 
 
 def call_gpt(prompt):
-    model = "gpt-4"
+    model = "gpt-3.5-turbo"
     messages = [{"role": "user", "content": prompt}]
     completion = openai.ChatCompletion.create(model=model, messages=messages)
     response = completion.choices[0].message.content
@@ -194,16 +237,27 @@ def summarize_messages(chunks):
 def main(chat_type, chat_export_file, summary_file, start_day_s, end_day_s, is_newsletter):
     start_day = datetime.datetime.strptime(start_day_s, '%m/%d/%Y').date()
     end_day = datetime.datetime.strptime(end_day_s, '%m/%d/%Y').date()
-    content = read_file(chat_export_file)
 
     if chat_type == 'WhatsApp':
+        content = read_file(chat_export_file)
         parsed_messages = parse_whatsapp(content)
-        filtered_messages = filter_messages_by_dates(parsed_messages, start_day, end_day)
+        filtered_messages = filter_messages_by_dates(
+            parsed_messages, start_day, end_day)
         chunks = whatsapp_chunk_text(filtered_messages)
-    else:   # Signal
+    elif chat_type == 'Signal':
+        content = read_file(chat_export_file)
         parsed_messages = parse_signal_chat(content)
-        filtered_messages = filter_messages_by_dates(parsed_messages, start_day, end_day)
+        filtered_messages = filter_messages_by_dates(
+            parsed_messages, start_day, end_day)
         chunks = signal_chunk_text(filtered_messages)
+    elif chat_type == 'Slack':  # Add support for Slack
+        parsed_messages = parse_slack(chat_export_file)
+        filtered_messages = filter_messages_by_dates(
+            parsed_messages, start_day, end_day)
+        chunks = slack_chunk_text(filtered_messages)
+    else:
+        print('ERROR: Chat type must be either WhatsApp, Signal or Slack')
+        exit(1)
 
     summary = summarize_messages(chunks)
 
@@ -221,17 +275,21 @@ def main(chat_type, chat_export_file, summary_file, start_day_s, end_day_s, is_n
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("chat_export_file", help="Input file, export of the chat")
+    parser.add_argument("chat_export_file",
+                        help="Input file, export of the chat")
     parser.add_argument("summary_file", help="Summary output file")
     parser.add_argument("start_date", help="When to start summarizing from")
     parser.add_argument("end_date", help="Until when to summarize")
-    parser.add_argument("--chat_type", help="WhatsApp or Signal")
-    parser.add_argument("--newsletter", action=argparse.BooleanOptionalAction, help="Generate an introduction for a newsletter")
+    # Update to include 'Slack'
+    parser.add_argument("--chat_type", help="WhatsApp, Signal or Slack")
+    parser.add_argument("--newsletter", action=argparse.BooleanOptionalAction,
+                        help="Generate an introduction for a newsletter")
 
     args = parser.parse_args()
 
-    if args.chat_type not in ['WhatsApp', 'Signal']:
-        print('ERROR: Chat type must be either WhatsApp or Signal')
+    # Update to include 'Slack'
+    if args.chat_type not in ['WhatsApp', 'Signal', 'Slack']:
+        print('ERROR: Chat type must be either WhatsApp, Signal or Slack')
         exit(1)
 
     if args.newsletter is not True:
