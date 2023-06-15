@@ -15,7 +15,14 @@ This project can be used to generate summaries of your conversations or to creat
 
 ## Installation
 
-To install the requirements, run the following command in your terminal:
+Before installation, it's recommended to create a Python virtual environment to isolate the project dependencies. You can do this using the following commands:
+
+```bash
+python3 -m venv env
+source env/bin/activate
+```
+
+Then, install the necessary Python packages by running:
 
 ```bash
 pip install -r requirements.txt
@@ -47,12 +54,22 @@ To export your group chat from Signal, you need to use the [signal-export](https
 5. Wait for the process to finish. You should see a message saying "Done!" when it's complete.
 6. Find the chat export file for the group chat you want to summarize in the output directory. It should be a text file with a .txt extension and a name that matches the group name.
 
+
+### Slack
+To export your Slack workspace data, follow these steps:
+
+As an owner or admin, go to your workspace's settings by clicking on your workspace name in the top left corner, then choose "Settings & administration" -> "Workspace settings".
+On the settings page, select "Import/Export Data" in the top menu, then click on "Export"
+Select Export date range and click "Start Export".
+
+Once your download is ready, you'll receive an email with a link to download a ZIP file. Unzip this file to access a series of JSON files. Each of these files represents the exported data from one channel, with the file name corresponding to the channel name.
+
 ## Usage
 
 To use this script, navigate to the directory containing the script, and run it in the terminal. The basic usage is:
 
 ```bash
-python main.py <chat_export_file> <summary_file> <start_date> <end_date> --chat_type=<chat_type> --newsletter=<boolean>
+python group_chat_summarize.py <chat_export_file> <summary_file> <start_date> <end_date> --chat_type=<chat_type> --newsletter=<boolean>
 ```
 
 Here's a description of the command-line arguments:
@@ -62,6 +79,7 @@ Here's a description of the command-line arguments:
 - `start_date`: This is the date from which the summary should start. The format should be "mm/dd/yyyy".
 - `end_date`: This is the date till which the summary should go. The format should be "mm/dd/yyyy".
 - `--chat_type`: This optional argument specifies the type of chat export. The valid inputs are 'WhatsApp' or 'Signal'.
+- `--model`: This optional argument specifies the OpenAI model. Default is 'gpt-4' If 'gpt-4' is not supported in your environment, you can switch to 'gpt-3.5-turbo'
 - `--newsletter`: This optional boolean argument, when set to `True`, instructs the script to generate an introduction for a newsletter.
 
 For example:
